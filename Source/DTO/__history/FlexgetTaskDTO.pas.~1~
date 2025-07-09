@@ -1,0 +1,47 @@
+unit FlexgetTaskDTO;
+
+interface
+
+type
+  TFlexgetTaskDTO = class
+  public
+    Name: string;
+    RssUrl: string;
+    DownloadPath: string;
+    constructor Create(const AName, ARssUrl, ADownloadPath: string);
+    function ToYaml: TArray<string>;
+  end;
+
+implementation
+
+uses
+  System.SysUtils;
+
+{ TFlexgetTaskDTO }
+
+constructor TFlexgetTaskDTO.Create(const AName, ARssUrl, ADownloadPath: string);
+begin
+  Name := AName;
+  RssUrl := ARssUrl;
+  DownloadPath := ADownloadPath;
+end;
+
+function TFlexgetTaskDTO.ToYaml: TArray<string>;
+begin
+  Result := [
+    Format('  %s:', [Name]),
+    '    rss:',
+    Format('      url: %s', [RssUrl]),
+    '      all_entries: yes',
+    '    template:',
+    '      - anime_1080p_hevc_magnet',
+    '    qbittorrent:',
+    '      host: localhost',
+    '      port: 8080',
+    '      username: admin',
+    '      password: adminadmin',
+    Format('      path: "%s"', [DownloadPath])
+  ];
+end;
+
+end.

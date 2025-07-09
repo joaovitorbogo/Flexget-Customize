@@ -1,0 +1,415 @@
+﻿unit UnitMain;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  FlexgetConfigDTO, Vcl.ComCtrls, Vcl.ExtCtrls;
+
+type
+  TFormMain = class(TForm)
+    btnLoadConfig: TButton;
+    OpenDialog1: TOpenDialog;
+    PageControl: TPageControl;
+    tsAlteracoes: TTabSheet;
+    tsDebug: TTabSheet;
+    MemoConfigRaw: TMemo;
+    MemoParsedInfo: TMemo;
+    Label1: TLabel;
+    Label2: TLabel;
+    tvConfig: TTreeView;
+    Splitter1: TSplitter;
+    pnlDetails: TScrollBox;
+    btnSaveChanges: TButton;
+    SaveDialog1: TSaveDialog;
+    pnlWelcome: TPanel;
+    Label3: TLabel;
+    pnlTemplateDetails: TPanel;
+    lblAcceptAll: TLabel;
+    lblMagnets: TLabel;
+    lblContentSize: TLabel;
+    lblRegexp: TLabel;
+    edtAcceptAll: TEdit;
+    edtMagnets: TEdit;
+    edtContentSize: TEdit;
+    memRegexp: TMemo;
+    pnlTaskDetails: TPanel;
+    pnlScheduleDetails: TPanel;
+    lblScheduleTasks: TLabel;
+    lblScheduleInterval: TLabel;
+    edtScheduleTasks: TEdit;
+    edtScheduleInterval: TEdit;
+    pnlGlobalSettings: TPanel;
+    Label5: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
+    lblDefaultHost: TLabel;
+    lblDefaultPort: TLabel;
+    lblDefaultUser: TLabel;
+    lblDefaultPass: TLabel;
+    lblDefaultAllEntries: TLabel;
+    edtGlobalHost: TEdit;
+    edtGlobalPort: TEdit;
+    edtGlobalUser: TEdit;
+    edtGlobalPass: TEdit;
+    edtGlobalAllEntries: TEdit;
+    memGlobalTemplates: TMemo;
+    lblTaskRssUrl: TLabel;
+    lblTaskQbitPath: TLabel;
+    edtTaskRssUrl: TEdit;
+    edtTaskQbitPath: TEdit;
+    procedure btnLoadConfigClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure tvConfigChange(Sender: TObject; Node: TTreeNode);
+    procedure btnSaveChangesClick(Sender: TObject);
+    procedure tvConfigChanging(Sender: TObject; Node, NewNode: TTreeNode;
+      var AllowChange: Boolean);
+  private
+    FConfig: TFlexgetConfigDTO;
+    procedure LoadConfigFromFile(const AFileName: string);
+    procedure PopulateUI;
+    procedure ShowDebugInfo;
+    procedure PopulateTreeView;
+    procedure PopulateGlobalSettingsFromFirstTask;
+    procedure ApplyGlobalSettingsToDTO;
+    procedure UpdateDTOFromUI(ANode: TTreeNode);
+    procedure SaveChangesToFile;
+    procedure ShowDetailsForNode(ANode: TTreeNode);
+    procedure ShowWelcomePanel;
+    procedure ShowGlobalSettingsPanel;
+    procedure ShowTemplateDetails(const ATemplate: TTemplateDTO);
+    procedure ShowTaskDetails(const ATask: TTaskDTO);
+    procedure ShowScheduleDetails(const ASchedule: TScheduleDTO);
+  public
+  end;
+
+var
+  FormMain: TFormMain;
+
+implementation
+
+{$R *.dfm}
+
+procedure TFormMain.FormCreate(Sender: TObject);
+begin
+  FConfig := TFlexgetConfigDTO.Create;
+  ShowWelcomePanel;
+end;
+
+procedure TFormMain.FormDestroy(Sender: TObject);
+begin
+  FConfig.Free;
+end;
+
+procedure TFormMain.LoadConfigFromFile(const AFileName: string);
+begin
+  try
+    FConfig.LoadFromYamlFile(AFileName);
+    MemoConfigRaw.Lines.LoadFromFile(AFileName);
+    PopulateUI;
+    btnSaveChanges.Enabled := True;
+    PageControl.ActivePage := tsAlteracoes;
+    ShowMessage('Arquivo carregado com sucesso!');
+  except
+    on E: Exception do
+      ShowMessage('Erro ao carregar arquivo: ' + E.Message);
+  end;
+end;
+
+procedure TFormMain.SaveChangesToFile;
+begin
+  // 1. Salva qualquer edição pendente no nó atual (ex: um campo de task)
+  UpdateDTOFromUI(tvConfig.Selected);
+
+  // 2. Replicação: Pega os dados da UI "Global" e aplica a todas as tasks no DTO
+  ApplyGlobalSettingsToDTO;
+
+  // 3. Salva o DTO modificado no arquivo
+  SaveDialog1.FileName := OpenDialog1.FileName;
+  if SaveDialog1.Execute then
+  begin
+    try
+      MemoConfigRaw.Lines.Text := FConfig.ToYamlString;
+      MemoConfigRaw.Lines.SaveToFile(SaveDialog1.FileName);
+      ShowMessage('Alterações salvas com sucesso!');
+      ShowDebugInfo; // Atualiza o memo de debug com as alterações
+    except
+      on E: Exception do
+        ShowMessage('Erro ao salvar o arquivo: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TFormMain.PopulateUI;
+begin
+  ShowDebugInfo;
+  PopulateTreeView;
+  PopulateGlobalSettingsFromFirstTask;
+end;
+
+procedure TFormMain.ShowDebugInfo;
+var
+  LKey: string;
+  LTemplate: TTemplateDTO;
+  LTask: TTaskDTO;
+  LSchedule: TScheduleDTO;
+  LIndex: Integer;
+begin
+  MemoParsedInfo.Clear;
+  MemoParsedInfo.Lines.BeginUpdate;
+  try
+    MemoParsedInfo.Lines.Add('=== Templates ===');
+    for LKey in FConfig.Templates.Keys do
+    begin
+      LTemplate := FConfig.Templates[LKey];
+      MemoParsedInfo.Lines.Add('Template: ' + LKey);
+      //... (outros detalhes podem ser adicionados aqui)
+      MemoParsedInfo.Lines.Add('');
+    end;
+
+    MemoParsedInfo.Lines.Add('=== Tasks ===');
+    for LKey in FConfig.Tasks.Keys do
+    begin
+      LTask := FConfig.Tasks[LKey];
+      MemoParsedInfo.Lines.Add('Task: ' + LKey);
+      MemoParsedInfo.Lines.Add('  URL: ' + LTask.Rss.Url);
+      MemoParsedInfo.Lines.Add('  All Entries: ' + LTask.Rss.AllEntries);
+      MemoParsedInfo.Lines.Add('  Path: ' + LTask.Qbittorrent.Path);
+      MemoParsedInfo.Lines.Add('');
+    end;
+
+    MemoParsedInfo.Lines.Add('=== Schedules ===');
+    LIndex := 0;
+    for LSchedule in FConfig.Schedules do
+    begin
+      MemoParsedInfo.Lines.Add(Format('Schedule [%d]', [LIndex]));
+      MemoParsedInfo.Lines.Add('  Tasks: ' + LSchedule.Tasks);
+      MemoParsedInfo.Lines.Add('  Interval Minutes: ' + IntToStr(LSchedule.IntervalMinutes));
+      MemoParsedInfo.Lines.Add('');
+      Inc(LIndex);
+    end;
+  finally
+    MemoParsedInfo.Lines.EndUpdate;
+  end;
+end;
+
+procedure TFormMain.PopulateTreeView;
+var
+  LRootNode, LChildNode: TTreeNode;
+  LKey: string;
+  LSchedule: TScheduleDTO;
+  LIndex: Integer;
+begin
+  tvConfig.Items.BeginUpdate;
+  try
+    tvConfig.Items.Clear;
+
+    // Nó especial para a UI global. O Data aponta para o próprio formulário.
+    LRootNode := tvConfig.Items.AddObject(nil, 'Configurações Globais (Replicar)', Self);
+
+    LRootNode := tvConfig.Items.Add(nil, 'Templates');
+    for LKey in FConfig.Templates.Keys do
+      LChildNode := tvConfig.Items.AddChildObject(LRootNode, LKey, FConfig.Templates[LKey]);
+
+    LRootNode := tvConfig.Items.Add(nil, 'Tasks');
+    for LKey in FConfig.Tasks.Keys do
+      LChildNode := tvConfig.Items.AddChildObject(LRootNode, LKey, FConfig.Tasks[LKey]);
+
+    LRootNode := tvConfig.Items.Add(nil, 'Schedules');
+    LIndex := 0;
+    for LSchedule in FConfig.Schedules do
+    begin
+      LChildNode := tvConfig.Items.AddChildObject(LRootNode, Format('Schedule [%d]', [LIndex]), LSchedule);
+      Inc(LIndex);
+    end;
+
+    tvConfig.FullExpand;
+  finally
+    tvConfig.Items.EndUpdate;
+  end;
+
+  if tvConfig.Items.Count > 0 then
+    tvConfig.Items[0].Selected := True;
+end;
+
+procedure TFormMain.PopulateGlobalSettingsFromFirstTask;
+var
+  LFirstTask: TTaskDTO;
+begin
+  // Usa a primeira tarefa como base para preencher os campos globais
+  if FConfig.Tasks.Count > 0 then
+  begin
+    LFirstTask := FConfig.Tasks.Values.First;
+    edtGlobalHost.Text := LFirstTask.Qbittorrent.Host;
+    edtGlobalPort.Text := LFirstTask.Qbittorrent.Port.ToString;
+    edtGlobalUser.Text := LFirstTask.Qbittorrent.Username;
+    edtGlobalPass.Text := LFirstTask.Qbittorrent.Password;
+    edtGlobalAllEntries.Text := LFirstTask.Rss.AllEntries;
+    memGlobalTemplates.Lines.Assign(LFirstTask.Template);
+  end;
+end;
+
+procedure TFormMain.ApplyGlobalSettingsToDTO;
+var
+  LTask: TTaskDTO;
+begin
+  // Itera por todas as tarefas no DTO e aplica os valores da UI global
+  for LTask in FConfig.Tasks.Values do
+  begin
+    LTask.Qbittorrent.Host := edtGlobalHost.Text;
+    LTask.Qbittorrent.Port := StrToIntDef(edtGlobalPort.Text, 0);
+    LTask.Qbittorrent.Username := edtGlobalUser.Text;
+    LTask.Qbittorrent.Password := edtGlobalPass.Text;
+    LTask.Rss.AllEntries := edtGlobalAllEntries.Text;
+    LTask.Template.Assign(memGlobalTemplates.Lines);
+  end;
+end;
+
+procedure TFormMain.ShowWelcomePanel;
+begin
+  pnlGlobalSettings.Visible := False;
+  pnlTemplateDetails.Visible := False;
+  pnlTaskDetails.Visible := False;
+  pnlScheduleDetails.Visible := False;
+  pnlWelcome.Visible := True;
+end;
+
+procedure TFormMain.ShowDetailsForNode(ANode: TTreeNode);
+var
+  LObject: TObject;
+begin
+  if not Assigned(ANode) or (ANode.Data = nil) then
+  begin
+    ShowWelcomePanel;
+    Exit;
+  end;
+
+  LObject := TObject(ANode.Data);
+
+  if LObject = Self then // Nó especial de configurações globais
+    ShowGlobalSettingsPanel
+  else if LObject is TTemplateDTO then
+    ShowTemplateDetails(LObject as TTemplateDTO)
+  else if LObject is TTaskDTO then
+    ShowTaskDetails(LObject as TTaskDTO)
+  else if LObject is TScheduleDTO then
+    ShowScheduleDetails(LObject as TScheduleDTO)
+  else
+    ShowWelcomePanel;
+end;
+
+procedure TFormMain.ShowGlobalSettingsPanel;
+begin
+  pnlWelcome.Visible := False;
+  pnlTemplateDetails.Visible := False;
+  pnlTaskDetails.Visible := False;
+  pnlScheduleDetails.Visible := False;
+  pnlGlobalSettings.Visible := True;
+end;
+
+procedure TFormMain.ShowTemplateDetails(const ATemplate: TTemplateDTO);
+begin
+  pnlWelcome.Visible := False;
+  pnlGlobalSettings.Visible := False;
+  pnlTaskDetails.Visible := False;
+  pnlScheduleDetails.Visible := False;
+  pnlTemplateDetails.Visible := True;
+
+  edtAcceptAll.Text := ATemplate.AcceptAll;
+  edtMagnets.Text := ATemplate.Magnets;
+  edtContentSize.Text := ATemplate.ContentSizeMin.ToString;
+  memRegexp.Lines.Assign(ATemplate.RegexpAccept);
+end;
+
+procedure TFormMain.ShowTaskDetails(const ATask: TTaskDTO);
+begin
+  pnlWelcome.Visible := False;
+  pnlGlobalSettings.Visible := False;
+  pnlTemplateDetails.Visible := False;
+  pnlScheduleDetails.Visible := False;
+  pnlTaskDetails.Visible := True;
+
+  // Mostra apenas os dados individuais da tarefa
+  edtTaskRssUrl.Text := ATask.Rss.Url;
+  edtTaskQbitPath.Text := ATask.Qbittorrent.Path;
+end;
+
+procedure TFormMain.ShowScheduleDetails(const ASchedule: TScheduleDTO);
+begin
+  pnlWelcome.Visible := False;
+  pnlGlobalSettings.Visible := False;
+  pnlTemplateDetails.Visible := False;
+  pnlTaskDetails.Visible := False;
+  pnlScheduleDetails.Visible := True;
+
+  edtScheduleTasks.Text := ASchedule.Tasks;
+  edtScheduleInterval.Text := ASchedule.IntervalMinutes.ToString;
+end;
+
+procedure TFormMain.UpdateDTOFromUI(ANode: TTreeNode);
+var
+  LObject: TObject;
+begin
+  if not Assigned(ANode) or (ANode.Data = nil) then
+    Exit;
+
+  LObject := TObject(ANode.Data);
+
+  // A UI global não precisa ser atualizada aqui, pois ela não tem um DTO correspondente.
+  // Seus valores são lidos diretamente no momento de salvar.
+
+  if LObject is TTemplateDTO then
+  begin
+    with LObject as TTemplateDTO do
+    begin
+      AcceptAll := edtAcceptAll.Text;
+      Magnets := edtMagnets.Text;
+      ContentSizeMin := StrToIntDef(edtContentSize.Text, 0);
+      RegexpAccept.Assign(memRegexp.Lines);
+    end;
+  end
+  else if LObject is TTaskDTO then
+  begin
+    with LObject as TTaskDTO do
+    begin
+      // Atualiza apenas os dados individuais da tarefa
+      Rss.Url := edtTaskRssUrl.Text;
+      Qbittorrent.Path := edtTaskQbitPath.Text;
+    end;
+  end
+  else if LObject is TScheduleDTO then
+  begin
+    with LObject as TScheduleDTO do
+    begin
+      Tasks := edtScheduleTasks.Text;
+      IntervalMinutes := StrToIntDef(edtScheduleInterval.Text, 0);
+    end;
+  end;
+end;
+
+procedure TFormMain.btnLoadConfigClick(Sender: TObject);
+begin
+  if OpenDialog1.Execute then
+    LoadConfigFromFile(OpenDialog1.FileName);
+end;
+
+procedure TFormMain.btnSaveChangesClick(Sender: TObject);
+begin
+  SaveChangesToFile;
+end;
+
+procedure TFormMain.tvConfigChange(Sender: TObject; Node: TTreeNode);
+begin
+  ShowDetailsForNode(Node);
+end;
+
+procedure TFormMain.tvConfigChanging(Sender: TObject; Node, NewNode: TTreeNode;
+  var AllowChange: Boolean);
+begin
+  UpdateDTOFromUI(Node);
+  AllowChange := True;
+end;
+
+end.

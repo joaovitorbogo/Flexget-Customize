@@ -1,0 +1,53 @@
+﻿unit UnitMain;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  FlexgetConfigDTO; // sua unit DTO
+
+type
+  TFormMain = class(TForm)
+    btnLoadConfig: TButton;
+    MemoConfigRaw: TMemo;
+    OpenDialog1: TOpenDialog;
+  private
+    { Private declarations }
+    procedure LoadYamlConfigFromDialog(Config: TFlexgetConfigDTO);
+  public
+    { Public declarations }
+  end;
+
+var
+  FormMain: TFormMain;
+
+implementation
+
+{$R *.dfm}
+
+procedure TFormMain.LoadYamlConfigFromDialog(Config: TFlexgetConfigDTO);
+var
+  OpenDlg: TOpenDialog;
+begin
+  OpenDlg := TOpenDialog.Create(nil);
+  try
+    OpenDlg.Filter := 'YAML files (*.yaml;*.yml)|*.yaml;*.yml|All files (*.*)|*.*';
+    OpenDlg.Title := 'Selecione o arquivo YAML de configuração';
+
+    if OpenDlg.Execute then
+    begin
+      try
+        Config.LoadFromYamlFile(OpenDlg.FileName);
+        ShowMessage('Arquivo carregado com sucesso!');
+      except
+        on E: Exception do
+          ShowMessage('Erro ao carregar arquivo: ' + E.Message);
+      end;
+    end;
+  finally
+    OpenDlg.Free;
+  end;
+end;
+
+end.
