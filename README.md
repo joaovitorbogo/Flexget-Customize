@@ -9,7 +9,7 @@ and replace the placeholder URLs (https://via.placeholder.com/...) with the dire
 
 A user-friendly graphical interface (GUI) for Windows to create, edit, and run Flexget `config.yml` files. This tool is designed to simplify the management of Flexget configurations by providing a visual editor, removing the need to manually edit complex YAML files.
 
-
+![Main Application Window](https://i.imgur.com/gpI2RML.png)
 
 ## What is Flexget?
 
