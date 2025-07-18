@@ -9,7 +9,7 @@ and replace the placeholder URLs (https://via.placeholder.com/...) with the dire
 
 A user-friendly graphical interface (GUI) for Windows to create, edit, and run Flexget `config.yml` files. This tool is designed to simplify the management of Flexget configurations by providing a visual editor, removing the need to manually edit complex YAML files.
 
-![Main Application Window](https://i.imgur.com/FZZqwpz.png)
+
 
 ## What is Flexget?
 
@@ -21,7 +21,7 @@ Instead of manually checking an RSS feed for new content and then copying downlo
 
 1.  **"Watch this RSS feed."** (e.g., a feed for new TV show episodes)
 2.  **"Only accept entries that match these rules."** (e.g., a specific show name, in 1080p resolution, but not larger than 2GB).
-3.  **"If an entry is accepted, send its magnet or .torrent link to this download client."** (e.g., qBittorrent).
+3.  **"If an entry is accepted, send its magnet or .torrent link to this download client."** (e.g., sending it to qBittorrent to start the download).
 
 Flexget remembers what it has downloaded, so it never grabs the same content twice. This editor helps you build and manage these powerful rule sets without needing to be a YAML expert.
 
@@ -37,7 +37,7 @@ Flexget remembers what it has downloaded, so it never grabs the same content twi
 
 ## Installation & Setup
 
-This application is portable, but it depends on a correct Python and Flexget setup on your Windows machine. Follow these steps carefully.
+This application is portable, but it depends on a correct Python, qBittorrent, and Flexget setup on your Windows machine. Follow these steps carefully.
 
 ### Step 1: Install Python for Windows
 
@@ -49,21 +49,32 @@ Flexget runs on Python. If you don't have it installed, you need to install it f
     ![Python Installer PATH option](https://docs.python.org/3/_images/win_installer.png)
 4.  Proceed with the "Install Now" option and complete the installation.
 
-### Step 2: Install Flexget and qBittorrent Plugin
+### Step 2: Install and Configure qBittorrent
+
+This application is designed to integrate Flexget with the qBittorrent download client.
+
+1.  **Download and Install qBittorrent:** If you don't have it, download it from the official site: **[https://www.qbittorrent.org/download.php](https://www.qbittorrent.org/download.php)**
+2.  **Enable the Web UI:** Flexget communicates with qBittorrent through its Web User Interface. You must enable it.
+    *   Open qBittorrent.
+    *   Go to the menu `Tools -> Options...` (or press `Alt+O`).
+    *   Click on the `Web UI` tab on the left.
+    *   Check the box **"Enable Web User Interface"**.
+    *   In the "Authentication" section, enter a **Username** and **Password**. You will need to enter these exact same credentials into the Flexget Config Editor later.
+    *   Click `Apply` and `OK`.
+
+
+
+### Step 3: Install Flexget
 
 Once Python is installed, you can install Flexget using Python's package manager, `pip`.
 
 1.  Open a Windows Command Prompt (CMD) or PowerShell. You can do this by searching for "cmd" in the Start Menu.
-2.  Type the following command and press Enter to install Flexget:
+2.  Type the following command and press Enter to install Flexget and its qBittorrent plugin:
     ```
-    pip install flexget
-    ```
-3.  This editor is designed to work with qBittorrent. To allow Flexget to communicate with your qBittorrent client, you must install an extra plugin. Type the following command and press Enter:
-    ```
-    pip install flexget[qbittorrent]
+    pip install "flexget[qbittorrent]"
     ```
 
-### Step 3: Verify the Installation
+### Step 4: Verify the Installation
 
 To ensure everything is working correctly, you need to verify that Windows can find the `flexget` command.
 
@@ -74,7 +85,7 @@ To ensure everything is working correctly, you need to verify that Windows can f
 2.  **If it works,** you will see the installed Flexget version number (e.g., `3.1.123`). This means your setup is correct!
 3.  **If you get an error** like `'flexget' is not recognized as an internal or external command...`, it means Python was not added to your system's PATH. You will need to reinstall Python, making sure to check the "Add python.exe to PATH" box this time.
 
-### Step 4: Run the Flexget Config Editor
+### Step 5: Run the Flexget Config Editor
 
 Now that the backend is set up, you can use the editor.
 
@@ -102,7 +113,7 @@ The application interface is divided into a main area with three tabs.
 This is the primary screen for managing your configuration.
 
 *   **Left Panel (Tree View):** Shows the hierarchical structure of your configuration file, with main sections for `Global Settings`, `Templates`, `Tasks`, and `Schedules`. Click on any item in this tree to view and edit its details in the right panel. You can also rename tasks by clicking on a selected task name.
-*   **Right Panel (Details):** This area is context-sensitive and displays the properties of the item you selected in the tree view. You can edit URLs, paths, and other settings here.
+*   **Right Panel (Details):** This area is context-sensitive and displays the properties of the item you selected in the tree view. In the `Global Settings` section, you will enter the qBittorrent Web UI username and password you configured earlier.
 *   **Bottom Toolbar:**
     *   **Add Task:** Opens a dialog to create a new task with its name, RSS URL, and download path.
     *   **Remove Task:** Deletes the currently selected task from the configuration (after a confirmation prompt). This button is only enabled when a task is selected.
@@ -111,13 +122,13 @@ This is the primary screen for managing your configuration.
 
 This screen is dedicated to executing Flexget and viewing the results.
 
-![Main Application Window](https://i.imgur.com/VZNuckz.png)
+
 
 *   **Run (Button):** Executes the `flexget execute` command.
-    *   It will find and forcibly terminate any running `flexget.exe` process on your system.
     *   It operates in the same directory as your saved `config.yml` file.    
     *   **Important:** The application interface will freeze while the command is running. The mouse cursor will change to an hourglass to indicate it is busy.
     *   The output will appear in the panels below in real-time.
+*   **Kill Process (Button):** This is an emergency button. It will find and forcibly terminate any running `flexget.exe` process on your system. Use this if the `Run` command gets stuck or takes too long.
 *   **Output Panels:**
     *   **Accepted:** Displays all output lines containing the word "ACCEPTED".
     *   **Rejected:** Displays all output lines containing the word "REJECTED".
