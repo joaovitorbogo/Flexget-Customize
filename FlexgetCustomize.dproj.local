@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2025/07/09 01:34:38.000.124,=C:\Users\Bogo\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2025/07/09 01:35:50.000.290,C:\Users\Bogo\Documents\Embarcadero\Studio\Projects\Project1.dproj=C:\Users\Bogo\Documents\Embarcadero\Studio\Projects\FlexgetCustomize.dproj</Transaction>
+    <Transaction>2025/07/09 01:36:02.000.805,C:\Users\Bogo\Documents\Embarcadero\Studio\Projects\FlexgetCustomize.dproj=D:\Pós Formatação + Pessoal\Projetos\FlexGet Customize\FlexgetCustomize.dproj</Transaction>
+    <Transaction>2025/07/09 01:40:32.000.246,=D:\Pós Formatação + Pessoal\Projetos\FlexGet Customize\Source\DTO\FlexgetTaskDTO.pas</Transaction>
+    <Transaction>2025/07/09 01:40:39.000.070,=D:\Pós Formatação + Pessoal\Projetos\FlexGet Customize\Source\Forms\UnitMain.pas</Transaction>
+    <Transaction>2025/07/09 01:47:53.000.613,D:\Pós Formatação + Pessoal\Projetos\FlexGet Customize\Source\DTO\FlexgetTaskDTO.pas=</Transaction>
+    <Transaction>2025/07/09 01:48:06.000.456,=D:\Pós Formatação + Pessoal\Projetos\FlexGet Customize\Source\DTO\FlexgetConfigDTO.pas</Transaction>
+    <Transaction>2025/07/14 00:16:10.000.836,=D:\Pós Formatação + Pessoal\Projetos\Flexget-Customize\Source\Forms\fAddTask.pas</Transaction>
+    <Transaction>2025/07/14 00:16:17.000.057,=D:\Pós Formatação + Pessoal\Projetos\Flexget-Customize\Source\Forms\fMain.pas</Transaction>
+    <Transaction>2025/07/14 00:19:20.000.002,=D:\Pós Formatação + Pessoal\Projetos\Flexget-Customize\Source\Forms\formMain.pas</Transaction>
+    <Transaction>2025/07/14 00:19:27.000.809,=D:\Pós Formatação + Pessoal\Projetos\Flexget-Customize\Source\Forms\formAddTask.pas</Transaction>
+    <Transaction>2025/07/14 00:20:59.000.801,D:\Pós Formatação + Pessoal\Projetos\Flexget-Customize\Source\Forms\UMain.dfm=D:\Pós Formatação + Pessoal\Projetos\Flexget-Customize\Source\Forms\formMain.dfm</Transaction>
+    <Transaction>2025/07/14 00:20:59.000.801,D:\Pós Formatação + Pessoal\Projetos\Flexget-Customize\Source\Forms\UMain.pas=D:\Pós Formatação + Pessoal\Projetos\Flexget-Customize\Source\Forms\formMain.pas</Transaction>
+    <Transaction>2025/07/14 00:21:03.000.725,D:\Pós Formatação + Pessoal\Projetos\Flexget-Customize\Source\Forms\UAddTask.dfm=D:\Pós Formatação + Pessoal\Projetos\Flexget-Customize\Source\Forms\formAddTask.dfm</Transaction>
+    <Transaction>2025/07/14 00:21:03.000.725,D:\Pós Formatação + Pessoal\Projetos\Flexget-Customize\Source\Forms\UAddTask.pas=D:\Pós Formatação + Pessoal\Projetos\Flexget-Customize\Source\Forms\formAddTask.pas</Transaction>
+  </Transactions>
+</BorlandProject>
