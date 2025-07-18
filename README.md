@@ -9,7 +9,7 @@ and replace the placeholder URLs (https://via.placeholder.com/...) with the dire
 
 A user-friendly graphical interface (GUI) for Windows to create, edit, and run Flexget `config.yml` files. This tool is designed to simplify the management of Flexget configurations by providing a visual editor, removing the need to manually edit complex YAML files.
 
-![Main Application Window](https://via.placeholder.com/800x600.png?text=App+Screenshot:+Task+Editor+View)
+![Main Application Window](https://i.imgur.com/FZZqwpz.png)
 
 ## What is Flexget?
 
@@ -111,7 +111,7 @@ This is the primary screen for managing your configuration.
 
 This screen is dedicated to executing Flexget and viewing the results.
 
-![Run Process Tab](https://via.placeholder.com/800x600.png?text=App+Screenshot:+Run+Process+View)
+![Main Application Window](https://i.imgur.com/VZNuckz.png)
 
 *   **Run (Button):** Executes the `flexget execute` command.
     *   It operates in the same directory as your saved `config.yml` file.
