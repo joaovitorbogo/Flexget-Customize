@@ -114,10 +114,10 @@ This screen is dedicated to executing Flexget and viewing the results.
 ![Main Application Window](https://i.imgur.com/VZNuckz.png)
 
 *   **Run (Button):** Executes the `flexget execute` command.
-    *   It operates in the same directory as your saved `config.yml` file.
+    *   It will find and forcibly terminate any running `flexget.exe` process on your system.
+    *   It operates in the same directory as your saved `config.yml` file.    
     *   **Important:** The application interface will freeze while the command is running. The mouse cursor will change to an hourglass to indicate it is busy.
     *   The output will appear in the panels below in real-time.
-*   **Kill Process (Button):** This is an emergency button. It will find and forcibly terminate any running `flexget.exe` process on your system. Use this if the `Run` command gets stuck or takes too long.
 *   **Output Panels:**
     *   **Accepted:** Displays all output lines containing the word "ACCEPTED".
     *   **Rejected:** Displays all output lines containing the word "REJECTED".
@@ -128,8 +128,8 @@ This screen is dedicated to executing Flexget and viewing the results.
 
 This tab is for advanced users or for troubleshooting.
 
-*   **Arquivo YAML Original (Left Memo):** Shows the raw YAML text content as it will be saved to the file. This is useful to see the final structure.
-*   **Informações Interpretadas (Right Memo):** Shows an internal, structured representation of the data that the application has loaded and parsed from the file.
+*   **(Left Memo):** Shows the raw YAML text content as it will be saved to the file. This is useful to see the final structure.
+*   **(Right Memo):** Shows an internal, structured representation of the data that the application has loaded and parsed from the file.
 
 ### Typical Workflow on Windows
 
